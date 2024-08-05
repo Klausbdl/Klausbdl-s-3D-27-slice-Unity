@@ -1,8 +1,8 @@
 //Made by Klausbdl
+//Best used in a prefab, so don't add this component to an object at runtime.
 
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,16 +12,18 @@ using UnityEditor;
 public class TiledMesh : MonoBehaviour
 {
     public Vector3 scale;
+    //Change these to avoid getting vertices that are close to the center. Change only to positive values!
+    public float xThreshold = 0;
+    public float yThreshold = 0;
+    public float zThreshold = 0;
+    [Space(8)]
     public GameObject originalMesh;
     public bool hasCollider = true;
+    [Tooltip("Check this to force update the corners, in case it looks wrong.")]
     public bool forceUpdate;
    
     MeshFilter filter;
-    MeshCollider meshCollider;
-    //Change these to avoid getting vertices that are close to the center. Change only to positive values!
-    float xThreshold = 0;
-    float yThreshold = 0;
-    float zThreshold = 0;
+    MeshCollider meshCollider;    
 
     //Vertices
     Vector3[] deformedVertices;
@@ -57,6 +59,10 @@ public class TiledMesh : MonoBehaviour
         if(cornersIndexes == null) FindCorners();
         if(filter.mesh == null) filter.mesh = originalMesh.GetComponent<MeshFilter>().sharedMesh;
         if (deformedVertices == null) deformedVertices = filter.sharedMesh.vertices;
+
+        if(xThreshold < 0) xThreshold = 0;
+        if(yThreshold < 0) yThreshold = 0;
+        if(zThreshold < 0) zThreshold = 0;
 
         UpdateMesh();
     }
@@ -115,32 +121,57 @@ public class TiledMesh : MonoBehaviour
             {
                 int index = cornersIndexes[i][j];
                 Vector3 scaledOffset = Vector3.zero;
+                Vector3 origV = originalMesh.GetComponent<MeshFilter>().sharedMesh.vertices[index];
 
                 switch (i)
                 {
                     case 0:
                         scaledOffset = new Vector3(-scale.x, scale.y, scale.z);
+                        if (origV.x >= -xThreshold) scaledOffset.x = 0;
+                        if (origV.y <= yThreshold) scaledOffset.y = 0;
+                        if (origV.z <= zThreshold) scaledOffset.z = 0;
                         break;
                     case 1:
                         scaledOffset = new Vector3(scale.x, scale.y, scale.z);
+                        if (origV.x <= xThreshold) scaledOffset.x = 0;
+                        if (origV.y <= yThreshold) scaledOffset.y = 0;
+                        if (origV.z <= zThreshold) scaledOffset.z = 0;
                         break;
                     case 2:
                         scaledOffset = new Vector3(-scale.x, scale.y, -scale.z);
+                        if (origV.x >= -xThreshold) scaledOffset.x = 0;
+                        if (origV.y <= yThreshold) scaledOffset.y = 0;
+                        if (origV.z >= -zThreshold) scaledOffset.z = 0;
                         break;
                     case 3:
                         scaledOffset = new Vector3(scale.x, scale.y, -scale.z);
+                        if (origV.x <= xThreshold) scaledOffset.x = 0;
+                        if (origV.y <= yThreshold) scaledOffset.y = 0;
+                        if (origV.z >= -zThreshold) scaledOffset.z = 0;
                         break;
                     case 4:
                         scaledOffset = new Vector3(-scale.x, -scale.y, scale.z);
+                        if (origV.x >= -xThreshold) scaledOffset.x = 0;
+                        if (origV.y >= -yThreshold) scaledOffset.y = 0;
+                        if (origV.z <= zThreshold) scaledOffset.z = 0;
                         break;
                     case 5:
                         scaledOffset = new Vector3(scale.x, -scale.y, scale.z);
+                        if (origV.x <= xThreshold) scaledOffset.x = 0;
+                        if (origV.y >= -yThreshold) scaledOffset.y = 0;
+                        if (origV.z <= zThreshold) scaledOffset.z = 0;
                         break;
                     case 6:
                         scaledOffset = new Vector3(-scale.x, -scale.y, -scale.z);
+                        if (origV.x >= -xThreshold) scaledOffset.x = 0;
+                        if (origV.y >= -yThreshold) scaledOffset.y = 0;
+                        if (origV.z >= -zThreshold) scaledOffset.z = 0;
                         break;
                     case 7:
                         scaledOffset = new Vector3(scale.x, -scale.y, -scale.z);
+                        if (origV.x <= xThreshold) scaledOffset.x = 0;
+                        if (origV.y >= -yThreshold) scaledOffset.y = 0;
+                        if (origV.z >= -zThreshold) scaledOffset.z = 0;
                         break;
                 }
 
@@ -212,6 +243,15 @@ public class TiledMesh : MonoBehaviour
 
             Gizmos.DrawSphere(localVertexPosition, 0.05f);
         }
+        
+        //draw thresholds
+        Gizmos.matrix = transform.localToWorldMatrix;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(xThreshold * 2, filter.sharedMesh.bounds.size.y, filter.sharedMesh.bounds.size.z));
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(filter.sharedMesh.bounds.size.x, yThreshold * 2, filter.sharedMesh.bounds.size.z));
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(filter.sharedMesh.bounds.size.x, filter.sharedMesh.bounds.size.y, zThreshold * 2));
     }
 #endif
 }
