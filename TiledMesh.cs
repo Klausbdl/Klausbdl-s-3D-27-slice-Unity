@@ -21,9 +21,9 @@ public class TiledMesh : MonoBehaviour
     public bool hasCollider = true;
     [Tooltip("Check this to force update the corners, in case it looks wrong.")]
     public bool forceUpdate;
-   
+
     MeshFilter filter;
-    MeshCollider meshCollider;    
+    MeshCollider meshCollider;
 
     //Vertices
     Vector3[] deformedVertices;
@@ -40,29 +40,29 @@ public class TiledMesh : MonoBehaviour
         if (originalMesh == null) return;
         else
         {
-            if(originalMesh.name != lastObject || forceUpdate)
+            if (originalMesh.name != lastObject || forceUpdate)
             {
                 lastObject = originalMesh.name;
                 forceUpdate = false;
 
-                if(filter == null) filter = GetComponent<MeshFilter>();
+                if (filter == null) filter = GetComponent<MeshFilter>();
 
                 filter.mesh = originalMesh.GetComponent<MeshFilter>().sharedMesh;
                 deformedVertices = filter.mesh.vertices;
                 FindCorners();
                 UpdateMesh();
                 return;
-            }            
+            }
         }
 
         //additional checks
-        if(cornersIndexes == null) FindCorners();
-        if(filter.mesh == null) filter.mesh = originalMesh.GetComponent<MeshFilter>().sharedMesh;
+        if (cornersIndexes == null) FindCorners();
+        if (filter.mesh == null) filter.mesh = originalMesh.GetComponent<MeshFilter>().sharedMesh;
         if (deformedVertices == null) deformedVertices = filter.sharedMesh.vertices;
 
-        if(xThreshold < 0) xThreshold = 0;
-        if(yThreshold < 0) yThreshold = 0;
-        if(zThreshold < 0) zThreshold = 0;
+        if (xThreshold < 0) xThreshold = 0;
+        if (yThreshold < 0) yThreshold = 0;
+        if (zThreshold < 0) zThreshold = 0;
 
         UpdateMesh();
     }
@@ -78,7 +78,7 @@ public class TiledMesh : MonoBehaviour
         for (int i = 0; i < originalMesh.GetComponent<MeshFilter>().sharedMesh.vertices.Length; i++)
         {
             Vector3 v = originalMesh.GetComponent<MeshFilter>().sharedMesh.vertices[i];
-            if(v.x < -xThreshold && v.y > yThreshold && v.z > zThreshold) //0
+            if (v.x < -xThreshold && v.y > yThreshold && v.z > zThreshold) //0
             {
                 cornersIndexes[0].Add(i);
             }
@@ -183,12 +183,12 @@ public class TiledMesh : MonoBehaviour
 
         //Update the mesh
         filter.mesh.vertices = deformedVertices;
-        
+
         //This gives me an ugly look because of multiple vertices on top of one another in some spots
         //filter.mesh.RecalculateNormals();
-        
+
         filter.sharedMesh.RecalculateBounds();
-        if(meshCollider != null)
+        if (meshCollider != null)
             meshCollider.sharedMesh = filter.sharedMesh;
     }
 
@@ -197,7 +197,7 @@ public class TiledMesh : MonoBehaviour
     private void MyUpdate()
     {
         //update mesh when rotating the object in editor time
-        if(transform.rotation.eulerAngles != lastRotation.eulerAngles)
+        if (transform.rotation.eulerAngles != lastRotation.eulerAngles)
         {
             lastRotation = transform.rotation;
             FindCorners();
@@ -211,7 +211,7 @@ public class TiledMesh : MonoBehaviour
         EditorApplication.update += MyUpdate;
 #endif
         filter = GetComponent<MeshFilter>();
-        if(!TryGetComponent(out meshCollider) && hasCollider)
+        if (!TryGetComponent(out meshCollider) && hasCollider)
             meshCollider = gameObject.AddComponent<MeshCollider>();
     }
 #if UNITY_EDITOR
@@ -223,9 +223,10 @@ public class TiledMesh : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         if (deformedVertices == null) return;
+        Gizmos.matrix = transform.localToWorldMatrix;
 
         Color[] colors = new Color[8] { Color.yellow, Color.black, Color.blue, Color.green, Color.gray, Color.red, Color.cyan, Color.magenta };
-        for (int i = 0; i < deformedVertices.Length; i++)
+        for (int i = 0; i < filter.sharedMesh.vertices.Length; i++)
         {
             if (cornersIndexes[0].Contains(i)) Gizmos.color = colors[0];
             else if (cornersIndexes[1].Contains(i)) Gizmos.color = colors[1];
@@ -236,19 +237,12 @@ public class TiledMesh : MonoBehaviour
             else if (cornersIndexes[6].Contains(i)) Gizmos.color = colors[6];
             else if (cornersIndexes[7].Contains(i)) Gizmos.color = colors[7];
 
-            Vector3 localVertexPosition = deformedVertices[i];
-            localVertexPosition.x *= transform.localScale.x;
-            localVertexPosition.y *= transform.localScale.y;
-            localVertexPosition.z *= transform.localScale.z;
-
-            // Transform to world position considering rotation and position
-            localVertexPosition = transform.rotation * (localVertexPosition + transform.position);
+            Vector3 localVertexPosition = filter.sharedMesh.vertices[i];
 
             Gizmos.DrawSphere(localVertexPosition, 0.05f);
         }
-        
+
         //draw thresholds
-        Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(Vector3.zero, new Vector3(xThreshold * 2, filter.sharedMesh.bounds.size.y, filter.sharedMesh.bounds.size.z));
         Gizmos.color = Color.green;
