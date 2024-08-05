@@ -78,35 +78,35 @@ public class TiledMesh : MonoBehaviour
         for (int i = 0; i < originalMesh.GetComponent<MeshFilter>().sharedMesh.vertices.Length; i++)
         {
             Vector3 v = originalMesh.GetComponent<MeshFilter>().sharedMesh.vertices[i];
-            if (v.x < -xThreshold && v.y > yThreshold && v.z > zThreshold) //0
+            if (v.x < 0 && v.y > 0 && v.z > 0) //0
             {
                 cornersIndexes[0].Add(i);
             }
-            if (v.x > xThreshold && v.y > yThreshold && v.z > zThreshold) //1
+            if (v.x > 0 && v.y > 0 && v.z > 0) //1
             {
                 cornersIndexes[1].Add(i);
             }
-            if (v.x < -xThreshold && v.y > yThreshold && v.z < -zThreshold) //2
+            if (v.x < 0 && v.y > 0 && v.z < 0) //2
             {
                 cornersIndexes[2].Add(i);
             }
-            if (v.x > xThreshold && v.y > yThreshold && v.z < -zThreshold) //3
+            if (v.x > 0 && v.y > 0 && v.z < 0) //3
             {
                 cornersIndexes[3].Add(i);
             }
-            if (v.x < -xThreshold && v.y < -yThreshold && v.z > zThreshold) //4
+            if (v.x < 0 && v.y < 0 && v.z > 0) //4
             {
                 cornersIndexes[4].Add(i);
             }
-            if (v.x > xThreshold && v.y < -yThreshold && v.z > zThreshold) //5
+            if (v.x > 0 && v.y < 0 && v.z > 0) //5
             {
                 cornersIndexes[5].Add(i);
             }
-            if (v.x < -xThreshold && v.y < -yThreshold && v.z < -zThreshold) //6
+            if (v.x < 0 && v.y < 0 && v.z < 0) //6
             {
                 cornersIndexes[6].Add(i);
             }
-            if (v.x > xThreshold && v.y < -yThreshold && v.z < -zThreshold) //7
+            if (v.x > 0 && v.y < 0 && v.z < 0) //7
             {
                 cornersIndexes[7].Add(i);
             }
