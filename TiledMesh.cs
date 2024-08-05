@@ -237,9 +237,12 @@ public class TiledMesh : MonoBehaviour
             else if (cornersIndexes[7].Contains(i)) Gizmos.color = colors[7];
 
             Vector3 localVertexPosition = deformedVertices[i];
+            localVertexPosition.x *= transform.localScale.x;
+            localVertexPosition.y *= transform.localScale.y;
+            localVertexPosition.z *= transform.localScale.z;
 
             // Transform to world position considering rotation and position
-            localVertexPosition = transform.rotation * localVertexPosition + transform.position;
+            localVertexPosition = transform.rotation * (localVertexPosition + transform.position);
 
             Gizmos.DrawSphere(localVertexPosition, 0.05f);
         }
