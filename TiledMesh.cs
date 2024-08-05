@@ -43,6 +43,8 @@ public class TiledMesh : MonoBehaviour
                 lastObject = originalMesh.name;
                 forceUpdate = false;
 
+                if(filter == null) filter = GetComponent<MeshFilter>();
+
                 filter.mesh = originalMesh.GetComponent<MeshFilter>().sharedMesh;
                 deformedVertices = filter.mesh.vertices;
                 FindCorners();
@@ -53,6 +55,8 @@ public class TiledMesh : MonoBehaviour
 
         //additional checks
         if(cornersIndexes == null) FindCorners();
+        if(filter.mesh == null) filter.mesh = originalMesh.GetComponent<MeshFilter>().sharedMesh;
+        if (deformedVertices == null) deformedVertices = filter.sharedMesh.vertices;
 
         UpdateMesh();
     }
